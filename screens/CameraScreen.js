@@ -9,7 +9,7 @@ import {
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Directory, File, Paths } from "expo-file-system";
 import Entypo from "@expo/vector-icons/Entypo";
-import { cameraStyles as styles } from "../assets/style/styles";
+import { cameraStyles as styles, colors } from "../assets/style/styles";
 
 async function savePhotoInApp(photoUri) {
   // pasta privada do app: Documents/gallery_photos
@@ -34,7 +34,7 @@ export default function CameraScreen({ navigation }) {
   if (!permission.granted) {
     return (
       <View style={styles.center}>
-        <Text style={{ marginBottom: 12 }}>
+        <Text style={styles.permissionText}>
           Precisamos da permissão da câmera.
         </Text>
         <Button title="Permitir câmera" onPress={requestPermission} />
@@ -66,7 +66,7 @@ export default function CameraScreen({ navigation }) {
           }}
           style={styles.galleryPhotos}
         >
-          <Entypo name="images" size={24} color="black" />
+          <Entypo name="images" size={24} color={colors.black} />
         </TouchableOpacity>
       </View>
       {savedUri && (

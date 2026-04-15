@@ -2,10 +2,10 @@ import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
-import { setFolders, selectFolders } from "../components/ImageSlice";
+import { setFolders, selectFolders } from "../store/ImageSlice";
 import Entypo from "@expo/vector-icons/Entypo";
 import CreateFolderModal from "../components/CreateFolderModal";
-import { folderStyles as styles } from "../assets/style/styles";
+import { folderStyles as styles, colors } from "../assets/style/styles";
 
 const FOLDERS_KEY = "@folders";
 
@@ -75,7 +75,7 @@ export default function FolderList({ navigation }) {
               onPress={() => navigation.navigate('Gallery', { folderId: item.id, folderName: item.name })}
               style={styles.folderInfo}
             >
-              <Entypo name="folder-images" size={24} color="white" />
+              <Entypo name="folder-images" size={24} color={colors.textPrimary} />
               <View style={styles.folderText}>
                 <Text style={styles.folderName}>{item.name}</Text>
               </View>
@@ -84,7 +84,7 @@ export default function FolderList({ navigation }) {
               onPress={() => deleteFolder(item.id)}
               style={styles.deleteBtn}
             >
-              <Entypo name="trash" size={20} color="red" />
+              <Entypo name="trash" size={20} color={colors.danger} />
             </TouchableOpacity>
           </View>
         )}
@@ -97,7 +97,7 @@ export default function FolderList({ navigation }) {
         onPress={() => setModalVisible(true)}
         style={styles.addButton}
       >
-        <Entypo name="plus" size={28} color="black" />
+        <Entypo name="plus" size={28} color={colors.black} />
       </TouchableOpacity>
 
       <CreateFolderModal

@@ -5,8 +5,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ImageItem from "../components/ImageItem";
 import { Directory, Paths } from "expo-file-system";
 import Entypo from "@expo/vector-icons/Entypo";
-import { selectImages, setFolders, setImages } from "../components/ImageSlice";
-import { imageStyles as styles } from "../assets/style/styles";
+import { selectImages, setFolders, setImages } from "../store/ImageSlice";
+import { imageStyles as styles, colors } from "../assets/style/styles";
 
 export default function ImageList({ navigation, route }) {
   const [data, setData] = useState([]);
@@ -90,7 +90,7 @@ export default function ImageList({ navigation, route }) {
   };
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.container}>
       <FlatList
         style={styles.listImages}
         contentContainerStyle={styles.listContent}
@@ -114,7 +114,7 @@ export default function ImageList({ navigation, route }) {
         <Entypo
           name={folderId ? "images" : "folder-images"}
           size={24}
-          color="black"
+          color={colors.black}
         />
       </TouchableOpacity>
     </View>

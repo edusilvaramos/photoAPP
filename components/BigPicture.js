@@ -1,14 +1,14 @@
-import { Image, TouchableOpacity, StyleSheet, View } from "react-native";
+import { Image, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
 import { File } from "expo-file-system";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from '@expo/vector-icons/Feather';
-import { assignImageToFolder, removeImageFromFolder, selectFolders, selectImages } from "./ImageSlice";
+import { assignImageToFolder, removeImageFromFolder, selectFolders, selectImages } from "../store/ImageSlice";
+import { STORAGE_KEYS } from "../store/storageKeys";
 import AddToFolderModal from "./AddToFolderModal";
-
-const IMAGE_FOLDERS_KEY = "@imageFolders";
+import { bigPictureStyles as styles, colors } from "../assets/style/styles";
 
 export default function BigPicture({ route, navigation }) {
   const thumbnail = route?.params?.thumbnail;
@@ -51,14 +51,14 @@ export default function BigPicture({ route, navigation }) {
 
   const saveImageFolderMap = async (uri, folderId) => {
     try {
-      const stored = await AsyncStorage.getItem(IMAGE_FOLDERS_KEY);
+      const stored = await AsyncStorage.getItem(STORAGE_KEYS.imageFolders);
       const parsed = stored ? JSON.parse(stored) : {};
       if (folderId) {
         parsed[uri] = folderId;
       } else {
         delete parsed[uri];
       }
-      await AsyncStorage.setItem(IMAGE_FOLDERS_KEY, JSON.stringify(parsed));
+      await AsyncStorage.setItem(STORAGE_KEYS.imageFolders, JSON.stringify(parsed));
     } catch (error) {
       console.error("Error saving image-folder map:", error);
     }
@@ -78,7 +78,7 @@ export default function BigPicture({ route, navigation }) {
           onPress={() => setModalVisible(true)}
           style={styles.addButton}
         >
-          <Entypo name="folder-images" size={24} color="white" />
+          <Entypo name="folder-images" size={24} color={colors.textPrimary} />
         </TouchableOpacity>
       )}
 
@@ -87,7 +87,7 @@ export default function BigPicture({ route, navigation }) {
           onPress={handleRemove}
           style={styles.removeButton}
         >
-          <Feather name="folder-minus" size={24} color="black" />
+          <Feather name="folder-minus" size={24} color={colors.black} />
         </TouchableOpacity>
       )}
 
@@ -96,7 +96,7 @@ export default function BigPicture({ route, navigation }) {
           onPress={handleDelete}
           style={styles.deleteButton}
         >
-          <Entypo name="trash" size={22} color="white" />
+          <Entypo name="trash" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
       )}
 
@@ -109,42 +109,3 @@ export default function BigPicture({ route, navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#000",
-  },
-  image: {
-    width: "90%",
-    height: "90%",
-    resizeMode: "contain",
-  },
-
-  addButton: {
-    position: "absolute",
-    right: 20,
-    bottom: 40,
-    backgroundColor: "rgba(0,0,0,0.7)",
-    borderRadius: 18,
-    padding: 10,
-  },
-  removeButton: {
-    position: "absolute",
-    right: 20,
-    bottom: 40,
-    backgroundColor: "rgba(255,0,0,0.7)",
-    borderRadius: 18,
-    padding: 10,
-  },
-  deleteButton: {
-    position: "absolute",
-    left: 20,
-    bottom: 40,
-    backgroundColor: "rgba(255,0,0,0.7)",
-    borderRadius: 18,
-    padding: 10,
-  },
-});

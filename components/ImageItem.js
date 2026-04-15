@@ -1,4 +1,5 @@
-import { Image, TouchableOpacity, StyleSheet } from "react-native";
+import { Image, TouchableOpacity } from "react-native";
+import { imageItemStyles as styles } from "../assets/style/styles";
 
 export default function imageItem(props) {
   return (
@@ -11,16 +12,3 @@ export default function imageItem(props) {
     </TouchableOpacity>
   );
 }
-
-
-const styles = StyleSheet.create({
-  image: {
-    flexDirection: "row",
-    alignItems: "center",
-    margin: 2,
-  },
-  thumbnail: {
-    width: 60,
-    height: 60,
-  },
-});
