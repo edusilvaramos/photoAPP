@@ -24,6 +24,16 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+
+    "plugins": [
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow photoAPP to access your camera",
+          "microphonePermission": "Allow photoAPP to access your microphone"
+        }
+      ]
+    ]
   }
 }
