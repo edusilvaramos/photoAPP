@@ -1,10 +1,11 @@
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
 import { setFolders, selectFolders } from "../components/ImageSlice";
 import Entypo from "@expo/vector-icons/Entypo";
 import CreateFolderModal from "../components/CreateFolderModal";
+import { folderStyles as styles } from "../assets/style/styles";
 
 const FOLDERS_KEY = "@folders";
 
@@ -110,59 +111,3 @@ export default function FolderList({ navigation }) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#000",
-    padding: 10,
-  },
-  folderItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    backgroundColor: "#1a1a1a",
-    padding: 15,
-    marginVertical: 8,
-    borderRadius: 10,
-  },
-  folderInfo: {
-    flexDirection: "row",
-    alignItems: "center",
-    flex: 1,
-  },
-  folderText: {
-    marginLeft: 15,
-    flex: 1,
-  },
-  folderName: {
-    color: "white",
-    fontSize: 16,
-    fontWeight: "bold",
-  },
-  folderDate: {
-    color: "#999",
-    fontSize: 12,
-    marginTop: 5,
-  },
-  deleteBtn: {
-    padding: 10,
-  },
-  emptyText: {
-    color: "#999",
-    textAlign: "center",
-    marginTop: 50,
-    fontSize: 16,
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 30,
-    right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: "#e2e7ec",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 5,
-  },
-});

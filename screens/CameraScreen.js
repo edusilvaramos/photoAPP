@@ -3,13 +3,13 @@ import {
   View,
   Button,
   Text,
-  StyleSheet,
   TouchableOpacity,
   Image,
 } from "react-native";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { Directory, File, Paths } from "expo-file-system";
 import Entypo from "@expo/vector-icons/Entypo";
+import { cameraStyles as styles } from "../assets/style/styles";
 
 async function savePhotoInApp(photoUri) {
   // pasta privada do app: Documents/gallery_photos
@@ -64,7 +64,7 @@ export default function CameraScreen({ navigation }) {
           onPress={() => {
             navigation.navigate("Gallery");
           }}
-          style={styles.gallery_photos}
+          style={styles.galleryPhotos}
         >
           <Entypo name="images" size={24} color="black" />
         </TouchableOpacity>
@@ -83,35 +83,3 @@ export default function CameraScreen({ navigation }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#000" },
-  camera: { flex: 1 },
-  controls: { position: "absolute", bottom: 40, alignSelf: "center" },
-  shutter: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: "white",
-    borderWidth: 6,
-    borderColor: "rgba(255,255,255,0.5)",
-  },
-  center: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  previewBox: { position: "absolute", bottom: 30, left: 20 },
-  previewBoxRight: { position: "absolute", bottom: 30, right: 20 },
-  preview: { width: 60, height: 60, borderRadius: 8 },
-  gallery_photos: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-    
-  },
-});

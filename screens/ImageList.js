@@ -1,4 +1,4 @@
-import { FlatList, View, StyleSheet, TouchableOpacity } from "react-native";
+import { FlatList, View, TouchableOpacity } from "react-native";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -6,6 +6,7 @@ import ImageItem from "../components/ImageItem";
 import { Directory, Paths } from "expo-file-system";
 import Entypo from "@expo/vector-icons/Entypo";
 import { selectImages, setFolders, setImages } from "../components/ImageSlice";
+import { imageStyles as styles } from "../assets/style/styles";
 
 export default function ImageList({ navigation, route }) {
   const [data, setData] = useState([]);
@@ -108,7 +109,7 @@ export default function ImageList({ navigation, route }) {
             navigation.navigate("FolderList");
           }
         }}
-        style={styles.icon_folderList}
+        style={styles.folderListIcon}
       >
         <Entypo
           name={folderId ? "images" : "folder-images"}
@@ -119,24 +120,3 @@ export default function ImageList({ navigation, route }) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  listImages: {
-    backgroundColor: "#000000",
-  },
-  listContent: {
-    alignItems: "center",
-  },
-  icon_folderList: {
-    width: 60,
-    height: 60,
-    borderRadius: 8,
-    backgroundColor: "white",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 5,
-    position: "absolute",
-    bottom: 40,
-    right: 20,
-  },
-});
