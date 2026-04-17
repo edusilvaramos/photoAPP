@@ -21,8 +21,7 @@ export default function ImageList({ navigation, route }) {
   }, [folderId, images]);
 
   useEffect(() => {
-    loadFoldersFromStorage();
-    loadImagesFromStorage();
+    loadStorageState();
   }, []);
 
   useEffect(() => {
@@ -50,11 +49,11 @@ export default function ImageList({ navigation, route }) {
         }));
 
       if (folderId) {
-        const allowedUris = images
+        const allowedUris = new Set(images
           .filter((image) => image.folderId === folderId)
-          .map((image) => image.uri);
+          .map((image) => image.uri));
 
-        photos = photos.filter((photo) => allowedUris.includes(photo.thumbnail));
+        photos = photos.filter((photo) => allowedUris.has(photo.thumbnail));
       }
 
       setData(photos);
@@ -63,30 +62,33 @@ export default function ImageList({ navigation, route }) {
     }
   };
 
-  const loadFoldersFromStorage = async () => {
+  const loadStorageState = async () => {
     try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEYS.folders);
-      if (stored) {
-        dispatch(setFolders(JSON.parse(stored)));
-      }
-    } catch (error) {
-      console.error("Error loading folders:", error);
-    }
-  };
+      const [storedFolders, storedMap] = await Promise.all([
+        AsyncStorage.getItem(STORAGE_KEYS.folders),
+        AsyncStorage.getItem(STORAGE_KEYS.imageFolders),
+      ]);
 
-  const loadImagesFromStorage = async () => {
-    try {
-      const stored = await AsyncStorage.getItem(STORAGE_KEYS.imageFolders);
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        const mapped = Object.entries(parsed).map(([uri, folderId]) => ({
-          uri,
-          folderId,
-        }));
-        dispatch(setImages(mapped));
+      const parsedFolders = storedFolders ? JSON.parse(storedFolders) : [];
+      const validFolderIds = new Set(parsedFolders.map((folder) => folder.id));
+      dispatch(setFolders(parsedFolders));
+
+      const parsedMap = storedMap ? JSON.parse(storedMap) : {};
+      const cleanedMap = Object.fromEntries(
+        Object.entries(parsedMap).filter(([, assignedFolderId]) => validFolderIds.has(assignedFolderId))
+      );
+
+      if (Object.keys(cleanedMap).length !== Object.keys(parsedMap).length) {
+        await AsyncStorage.setItem(STORAGE_KEYS.imageFolders, JSON.stringify(cleanedMap));
       }
+
+      const mapped = Object.entries(cleanedMap).map(([uri, assignedFolderId]) => ({
+        uri,
+        folderId: assignedFolderId,
+      }));
+      dispatch(setImages(mapped));
     } catch (error) {
-      console.error("Error loading image-folder map:", error);
+      console.error("Error loading storage state:", error);
     }
   };
 

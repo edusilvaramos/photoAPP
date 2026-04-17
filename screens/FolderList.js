@@ -62,10 +62,7 @@ export default function FolderList({ navigation }) {
 
   const deleteFolder = async (id) => {
     const updatedFolders = folders.filter(folder => folder.id !== id);
-    const updatedImages = images.filter((image) => image.folderId !== id);
-
     await saveFolders(updatedFolders);
-    dispatch(setImages(updatedImages));
 
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEYS.imageFolders);
@@ -74,6 +71,19 @@ export default function FolderList({ navigation }) {
         Object.entries(parsed).filter(([, folderId]) => folderId !== id)
       );
       await AsyncStorage.setItem(STORAGE_KEYS.imageFolders, JSON.stringify(cleanedMap));
+
+      const reassignedImages = images
+        .filter((image) => image.folderId == null || image.folderId !== id)
+        .map((image) => {
+          if (image.folderId == null) {
+            return image;
+          }
+
+          const stillAssigned = cleanedMap[image.uri];
+          return stillAssigned ? { ...image, folderId: stillAssigned } : { ...image, folderId: null };
+        });
+
+      dispatch(setImages(reassignedImages));
     } catch (error) {
       console.error("Error cleaning image-folder map:", error);
     }
