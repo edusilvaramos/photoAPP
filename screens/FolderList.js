@@ -2,16 +2,17 @@ import { View, Text, TouchableOpacity, FlatList } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
-import { setFolders, selectFolders } from "../store/ImageSlice";
+import { setFolders, setImages, selectFolders, selectImages } from "../store/imageSlice";
+import { STORAGE_KEYS } from "../store/storageKeys";
 import Entypo from "@expo/vector-icons/Entypo";
 import CreateFolderModal from "../components/CreateFolderModal";
 import { folderStyles as styles, colors } from "../assets/style/styles";
 
-const FOLDERS_KEY = "@folders";
 
 export default function FolderList({ navigation }) {
   const dispatch = useDispatch();
   const folders = useSelector(selectFolders);
+  const images = useSelector(selectImages);
   const [modalVisible, setModalVisible] = useState(false);
   const [folderName, setFolderName] = useState("");
 
@@ -21,7 +22,7 @@ export default function FolderList({ navigation }) {
 
   const loadFolders = async () => {
     try {
-      const stored = await AsyncStorage.getItem(FOLDERS_KEY);
+      const stored = await AsyncStorage.getItem(STORAGE_KEYS.folders);
       if (stored) {
         dispatch(setFolders(JSON.parse(stored)));
       } else {
@@ -34,14 +35,14 @@ export default function FolderList({ navigation }) {
 
   const saveFolders = async (newFolders) => {
     try {
-      await AsyncStorage.setItem(FOLDERS_KEY, JSON.stringify(newFolders));
+      await AsyncStorage.setItem(STORAGE_KEYS.folders, JSON.stringify(newFolders));
       dispatch(setFolders(newFolders));
     } catch (error) {
       console.error("Error saving folders:", error);
     }
   };
 
-  const createFolder = () => {
+  const createFolder = async () => {
     if (folderName.trim() === "") {
       alert("Enter a name for the list");
       return;
@@ -54,14 +55,28 @@ export default function FolderList({ navigation }) {
     };
 
     const updatedFolders = [...folders, newFolder];
-    saveFolders(updatedFolders);
+    await saveFolders(updatedFolders);
     setFolderName("");
     setModalVisible(false);
   };
 
-  const deleteFolder = (id) => {
+  const deleteFolder = async (id) => {
     const updatedFolders = folders.filter(folder => folder.id !== id);
-    saveFolders(updatedFolders);
+    const updatedImages = images.filter((image) => image.folderId !== id);
+
+    await saveFolders(updatedFolders);
+    dispatch(setImages(updatedImages));
+
+    try {
+      const stored = await AsyncStorage.getItem(STORAGE_KEYS.imageFolders);
+      const parsed = stored ? JSON.parse(stored) : {};
+      const cleanedMap = Object.fromEntries(
+        Object.entries(parsed).filter(([, folderId]) => folderId !== id)
+      );
+      await AsyncStorage.setItem(STORAGE_KEYS.imageFolders, JSON.stringify(cleanedMap));
+    } catch (error) {
+      console.error("Error cleaning image-folder map:", error);
+    }
   };
 
   return (

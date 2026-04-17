@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
 import Entypo from "@expo/vector-icons/Entypo";
 import Feather from '@expo/vector-icons/Feather';
-import { assignImageToFolder, removeImageFromFolder, selectFolders, selectImages } from "../store/ImageSlice";
+import { assignImageToFolder, removeImageFromFolder, selectFolders, selectImages } from "../store/imageSlice";
 import { STORAGE_KEYS } from "../store/storageKeys";
 import AddToFolderModal from "./AddToFolderModal";
 import { bigPictureStyles as styles, colors } from "../assets/style/styles";

@@ -5,7 +5,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ImageItem from "../components/ImageItem";
 import { Directory, Paths } from "expo-file-system";
 import Entypo from "@expo/vector-icons/Entypo";
-import { selectImages, setFolders, setImages } from "../store/ImageSlice";
+import { selectImages, setFolders, setImages } from "../store/imageSlice";
+import { STORAGE_KEYS } from "../store/storageKeys";
 import { imageStyles as styles, colors } from "../assets/style/styles";
 
 export default function ImageList({ navigation, route }) {
@@ -64,7 +65,7 @@ export default function ImageList({ navigation, route }) {
 
   const loadFoldersFromStorage = async () => {
     try {
-      const stored = await AsyncStorage.getItem("@folders");
+      const stored = await AsyncStorage.getItem(STORAGE_KEYS.folders);
       if (stored) {
         dispatch(setFolders(JSON.parse(stored)));
       }
@@ -75,7 +76,7 @@ export default function ImageList({ navigation, route }) {
 
   const loadImagesFromStorage = async () => {
     try {
-      const stored = await AsyncStorage.getItem("@imageFolders");
+      const stored = await AsyncStorage.getItem(STORAGE_KEYS.imageFolders);
       if (stored) {
         const parsed = JSON.parse(stored);
         const mapped = Object.entries(parsed).map(([uri, folderId]) => ({
