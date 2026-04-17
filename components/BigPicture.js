@@ -1,4 +1,4 @@
-import { Image, TouchableOpacity, View } from "react-native";
+import { Alert, Image, TouchableOpacity, View } from "react-native";
 import { useState } from "react";
 import { File } from "expo-file-system";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -55,6 +55,26 @@ export default function BigPicture({ route, navigation }) {
     }
   };
 
+  const confirmDeleteImage = () => {
+    Alert.alert(
+      "Delete image",
+      "Do you want to delete this image permanently?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            handleDelete();
+          },
+        },
+      ]
+    );
+  };
+
   const saveImageFolderMap = async (uri, folderId) => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEYS.imageFolders);
@@ -99,7 +119,7 @@ export default function BigPicture({ route, navigation }) {
 
       {thumbnail && (
         <TouchableOpacity
-          onPress={handleDelete}
+          onPress={confirmDeleteImage}
           style={styles.deleteButton}
         >
           <Entypo name="trash" size={22} color={colors.textPrimary} />

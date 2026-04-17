@@ -1,6 +1,7 @@
-import { View, Text, TouchableOpacity, FlatList } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Alert } from "react-native";
 import { useState, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { File } from "expo-file-system";
 import { useDispatch, useSelector } from "react-redux";
 import { setFolders, setImages, selectFolders, selectImages } from "../store/imageSlice";
 import { STORAGE_KEYS } from "../store/storageKeys";
@@ -60,19 +61,45 @@ export default function FolderList({ navigation }) {
     setModalVisible(false);
   };
 
-  const deleteFolder = async (id) => {
+  const confirmDeleteFolder = async (id) => {
     const updatedFolders = folders.filter(folder => folder.id !== id);
     await saveFolders(updatedFolders);
 
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEYS.imageFolders);
       const parsed = stored ? JSON.parse(stored) : {};
+
+      const urisFromMap = Object.entries(parsed)
+        .filter(([, folderId]) => folderId === id)
+        .map(([uri]) => uri);
+
+      const urisFromState = images
+        .filter((image) => image.folderId === id)
+        .map((image) => image.uri);
+
+      const urisToDelete = [...new Set([...urisFromMap, ...urisFromState])];
+
+      // Remove file assets that belonged to the deleted folder.
+      urisToDelete.forEach((uri) => {
+        try {
+          const file = new File(uri);
+          if (file.exists) {
+            file.delete();
+          }
+        } catch (error) {
+          console.error("Error deleting folder image file:", error);
+        }
+      });
+
       const cleanedMap = Object.fromEntries(
         Object.entries(parsed).filter(([, folderId]) => folderId !== id)
       );
       await AsyncStorage.setItem(STORAGE_KEYS.imageFolders, JSON.stringify(cleanedMap));
 
+      const deletedSet = new Set(urisToDelete);
+
       const reassignedImages = images
+        .filter((image) => !deletedSet.has(image.uri))
         .filter((image) => image.folderId == null || image.folderId !== id)
         .map((image) => {
           if (image.folderId == null) {
@@ -87,6 +114,26 @@ export default function FolderList({ navigation }) {
     } catch (error) {
       console.error("Error cleaning image-folder map:", error);
     }
+  };
+
+  const deleteFolder = (id, name) => {
+    Alert.alert(
+      "Delete folder",
+      `Delete "${name}" and all images inside it? This action cannot be undone.`,
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          style: "destructive",
+          onPress: () => {
+            confirmDeleteFolder(id);
+          },
+        },
+      ]
+    );
   };
 
   return (
@@ -106,7 +153,7 @@ export default function FolderList({ navigation }) {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => deleteFolder(item.id)}
+              onPress={() => deleteFolder(item.id, item.name)}
               style={styles.deleteBtn}
             >
               <Entypo name="trash" size={20} color={colors.danger} />
