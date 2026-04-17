@@ -12,6 +12,8 @@ import { bigPictureStyles as styles, colors } from "../assets/style/styles";
 
 export default function BigPicture({ route, navigation }) {
   const thumbnail = route?.params?.thumbnail;
+  const folderId = route?.params?.folderId;
+  const folderName = route?.params?.folderName;
   const dispatch = useDispatch();
   const folders = useSelector(selectFolders);
   const images = useSelector(selectImages);
@@ -31,7 +33,7 @@ export default function BigPicture({ route, navigation }) {
     if (!thumbnail) return;
     dispatch(removeImageFromFolder({ uri: thumbnail }));
     await saveImageFolderMap(thumbnail, null);
-    navigation.navigate("Gallery");
+    navigation.goBack();
   };
 
   const handleDelete = async () => {
@@ -39,11 +41,15 @@ export default function BigPicture({ route, navigation }) {
     try {
       const file = new File(thumbnail);
       if (file.exists) {
-        await file.delete();
+        file.delete();
       }
       dispatch(removeImageFromFolder({ uri: thumbnail }));
       await saveImageFolderMap(thumbnail, null);
-      navigation.navigate("Gallery");
+      if (folderId) {
+        navigation.navigate("Gallery", { folderId, folderName });
+      } else {
+        navigation.navigate("Gallery");
+      }
     } catch (error) {
       console.error("Error deleting image:", error);
     }

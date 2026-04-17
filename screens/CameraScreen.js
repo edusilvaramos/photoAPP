@@ -72,7 +72,10 @@ export default function CameraScreen({ navigation }) {
       {savedUri && (
         <TouchableOpacity
           onPress={() => {
-            navigation.navigate("BigPicture", { thumbnail: savedUri });
+            navigation.navigate("BigPicture", {
+              thumbnail: savedUri,
+              fromCamera: true,
+            });
           }}
         >
           <View style={styles.previewBoxRight}>

@@ -1,5 +1,6 @@
 import { FlatList, View, TouchableOpacity } from "react-native";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 import { useDispatch, useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ImageItem from "../components/ImageItem";
@@ -24,6 +25,18 @@ export default function ImageList({ navigation, route }) {
     loadStorageState();
   }, []);
 
+  useFocusEffect(
+    useCallback(() => {
+      const refresh = async () => {
+        await loadStorageState();
+      };
+
+      refresh();
+
+      return () => {};
+    }, [folderId])
+  );
+
   useEffect(() => {
     if (folderName) {
       navigation.setOptions({ title: folderName });
@@ -40,11 +53,11 @@ export default function ImageList({ navigation, route }) {
         return;
       }
 
-      const files = await photosDir.list();
+      const files = photosDir.list();
       let photos = files
-        .filter((file) => file.name && file.name.endsWith(".jpg"))
-        .map((file, index) => ({
-          id: index.toString(),
+        .filter((file) => file.name?.endsWith(".jpg"))
+        .map((file) => ({
+          id: file.uri,
           thumbnail: file.uri,
         }));
 
@@ -99,27 +112,30 @@ export default function ImageList({ navigation, route }) {
         contentContainerStyle={styles.listContent}
         numColumns={6}
         renderItem={({ item }) => (
-          <ImageItem thumbnail={item.thumbnail} navigation={navigation} />
+          <ImageItem
+            thumbnail={item.thumbnail}
+            navigation={navigation}
+            folderId={folderId}
+            folderName={folderName}
+          />
         )}
         data={data}
         keyExtractor={(item) => item.id}
       />
-      <TouchableOpacity
-        onPress={() => {
-          if (folderId) {
-            navigation.navigate("Gallery");
-          } else {
+      {!folderId && (
+        <TouchableOpacity
+          onPress={() => {
             navigation.navigate("FolderList");
-          }
-        }}
-        style={styles.folderListIcon}
-      >
-        <Entypo
-          name={folderId ? "images" : "folder-images"}
-          size={24}
-          color={colors.black}
-        />
-      </TouchableOpacity>
+          }}
+          style={styles.folderListIcon}
+        >
+          <Entypo
+            name="folder-images"
+            size={24}
+            color={colors.black}
+          />
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

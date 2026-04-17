@@ -27,27 +27,6 @@ Choose your platform:
 
 Clear cache if needed: `npx expo start -c`
 
-## Project Structure
-
-- `index.js` - Entry point
-- `App.js` - Root component, Redux Provider and navigation setup
-- `screens/CameraScreen.js` - Camera capture flow
-- `screens/ImageList.js` - Gallery and folder-filtered list
-- `screens/FolderList.js` - Folder management
-- `components/BigPicture.js` - Full image view and folder actions
-- `components/ImageSlice.js` - Redux slice for images/folders
-- `store/store.js` - Redux store configuration
-- `assets/` - Static assets
-
-## Running
-
-```bash
-npm start
-npm run ios
-npm run android
-npm run web
-```
-
 ## References
 
 - [Expo Documentation](https://docs.expo.dev/)
