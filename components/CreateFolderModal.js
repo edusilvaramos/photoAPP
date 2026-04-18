@@ -12,6 +12,7 @@ export default function CreateFolderModal({ visible, onClose, onCreateFolder, fo
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Create New List</Text>
+          {/* input is controlled by parent state to keep value synced */}
           <TextInput
             style={styles.input}
             placeholder="List name"
@@ -20,7 +21,9 @@ export default function CreateFolderModal({ visible, onClose, onCreateFolder, fo
             onChangeText={setFolderName}
           />
           <View style={styles.modalButtons}>
+            {/* cancel only closes the modal */}
             <Button title="Cancel" onPress={onClose} color={colors.danger} />
+            {/* create uses current folderName from the controlled input */}
             <Button title="Create" onPress={onCreateFolder} color={colors.success} />
           </View>
         </View>

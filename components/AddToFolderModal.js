@@ -14,10 +14,12 @@ export default function AddToFolderModal({ visible, onClose, folders, onSelectFo
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Add to folder</Text>
 
+          {/* show helper text when no folders exist yet */}
           {folders.length === 0 && (
             <Text style={styles.emptyText}>No folders created yet</Text>
           )}
 
+          {/* show selectable folder list when data exists */}
           {folders.length > 0 && (
             <FlatList
               data={folders}
@@ -34,6 +36,7 @@ export default function AddToFolderModal({ visible, onClose, folders, onSelectFo
             />
           )}
 
+          {/* close modal without selecting any folder */}
           <TouchableOpacity
             onPress={onClose}
             style={styles.closeButton}
