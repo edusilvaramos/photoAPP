@@ -29,6 +29,7 @@ export default function BigPicture({ route, navigation }) {
     if (!thumbnail) return;
     dispatch(assignImageToFolder({ uri: thumbnail, folderId }));
     await saveImageFolderMap(thumbnail, folderId);
+    console.log('assignment image to folder:', { thumbnail, folderId });
     setModalVisible(false);
   };
 
@@ -37,26 +38,26 @@ export default function BigPicture({ route, navigation }) {
     // Just removing the association with the folder 
     dispatch(removeImageFromFolder({ uri: thumbnail }));
     await saveImageFolderMap(thumbnail, null);
-
+    console.log('removed image from folder:', thumbnail);
     navigation.goBack();
   };
-// Deleting the image file permanently
+  // Deleting the image file permanently
   const handleDelete = async () => {
     if (!thumbnail) return;
 
     try {
       const file = new File(thumbnail);
-
       if (file.exists) {
         await file.delete();
       }
 
       dispatch(removeImageFromFolder({ uri: thumbnail }));
       await saveImageFolderMap(thumbnail, null);
+      console.log('image deleted');
 
       navigation.goBack();
     } catch (error) {
-      console.error("Error deleting image:", error);
+      console.error("error deleting image:", error);
     }
   };
 

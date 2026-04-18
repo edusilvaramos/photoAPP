@@ -62,6 +62,7 @@ export default function FolderList({ navigation }) {
   };
 
   const confirmDeleteFolder = async (id) => {
+    console.log('deleting folder:', id);
     const updatedFolders = folders.filter(folder => folder.id !== id);
     await saveFolders(updatedFolders);
 
@@ -78,18 +79,20 @@ export default function FolderList({ navigation }) {
         .map((image) => image.uri);
 
       const urisToDelete = [...new Set([...urisFromMap, ...urisFromState])];
+      console.log('images to delete:', urisToDelete.length);
 
       // Remove file assets that belonged to the deleted folder.
-      urisToDelete.forEach((uri) => {
+      for (const uri of urisToDelete) {
         try {
           const file = new File(uri);
           if (file.exists) {
-            file.delete();
+            await file.delete();
+            console.log('file deleted:', uri);
           }
         } catch (error) {
-          console.error("Error deleting folder image file:", error);
+          console.error("error deleting folder image file:", error);
         }
-      });
+      }
 
       const cleanedMap = Object.fromEntries(
         Object.entries(parsed).filter(([, folderId]) => folderId !== id)

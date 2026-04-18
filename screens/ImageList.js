@@ -19,15 +19,12 @@ export default function ImageList({ navigation, route }) {
 
   useEffect(() => {
     loadPhotos();
-  }, [folderId, images]);
-
-  useEffect(() => {
-    loadStorageState();
-  }, []);
+  }, [folderId]);
 
   useFocusEffect(
     useCallback(() => {
       const refresh = async () => {
+        console.log("gallery screen");
         await loadStorageState();
       };
 
@@ -43,7 +40,7 @@ export default function ImageList({ navigation, route }) {
     }
   }, [folderName]);
 
-  const loadPhotos = async () => {
+  const loadPhotos = async (imagesState = images) => {
     try {
       // Caso contrário, mostra todas as fotos da galeria
       const photosDir = new Directory(Paths.document, "gallery_photos");
@@ -62,12 +59,14 @@ export default function ImageList({ navigation, route }) {
         }));
 
       if (folderId) {
-        const allowedUris = new Set(images
+        const allowedUris = new Set(imagesState
           .filter((image) => image.folderId === folderId)
           .map((image) => image.uri));
 
         photos = photos.filter((photo) => allowedUris.has(photo.thumbnail));
       }
+
+      console.log(`total images: ${photos.length}`);
 
       setData(photos);
     } catch (error) {
@@ -85,13 +84,15 @@ export default function ImageList({ navigation, route }) {
       const parsedFolders = storedFolders ? JSON.parse(storedFolders) : [];
       const validFolderIds = new Set(parsedFolders.map((folder) => folder.id));
       dispatch(setFolders(parsedFolders));
+      console.log(`total folders: ${parsedFolders.length}`);
 
-      const parsedMap = storedMap ? JSON.parse(storedMap) : {};
+      const parsedMap = storedMap ? JSON.parse(storedMap) : {};      
       const cleanedMap = Object.fromEntries(
         Object.entries(parsedMap).filter(([, assignedFolderId]) => validFolderIds.has(assignedFolderId))
       );
 
       if (Object.keys(cleanedMap).length !== Object.keys(parsedMap).length) {
+        console.log('Cleaning orphan relations. Before:', Object.keys(parsedMap).length, 'After:', Object.keys(cleanedMap).length);
         await AsyncStorage.setItem(STORAGE_KEYS.imageFolders, JSON.stringify(cleanedMap));
       }
 
@@ -100,8 +101,9 @@ export default function ImageList({ navigation, route }) {
         folderId: assignedFolderId,
       }));
       dispatch(setImages(mapped));
+      await loadPhotos(mapped);
     } catch (error) {
-      console.error("Error loading storage state:", error);
+      console.error("error loading storage state:", error);
     }
   };
 
