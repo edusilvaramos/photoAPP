@@ -4,7 +4,6 @@ import { Provider } from "react-redux"
 import { TouchableOpacity } from "react-native"
 import Entypo from "@expo/vector-icons/Entypo"
 import store from "./store/store"
-// import camera from './components/Camera'
 import ImageList from "./screens/ImageList"
 import FolderList from "./screens/FolderList"
 import CameraScreen from "./screens/CameraScreen"
@@ -12,10 +11,12 @@ import BigPicture from "./components/BigPicture"
 
 const Tab = createNativeStackNavigator()
 
+// navigate to the camera screen
 function goToCamera(navigation) {
   navigation.navigate("Camera")
 }
 
+// go back to the previous screen if there is one, otherwise go to camera !!
 function goBackOrCamera(navigation) {
   if (navigation.canGoBack()) {
     navigation.goBack()
@@ -25,6 +26,7 @@ function goBackOrCamera(navigation) {
   goToCamera(navigation)
 }
 
+
 function renderBackButton(navigation) {
   return (
     <TouchableOpacity onPress={() => goBackOrCamera(navigation)} style={{ paddingHorizontal: 8 }}>
@@ -33,6 +35,7 @@ function renderBackButton(navigation) {
   )
 }
 
+// button opens camera from any screen
 function renderCameraButton(navigation) {
   return (
     <TouchableOpacity onPress={() => goToCamera(navigation)} style={{ paddingHorizontal: 8 }}>
@@ -42,6 +45,7 @@ function renderCameraButton(navigation) {
 }
 
 function screenOptions({ navigation, route }) {
+  //hides default back button and adds my header buttons
   const isCameraScreen = route?.name === "Camera"
 
   return {
@@ -54,15 +58,15 @@ function screenOptions({ navigation, route }) {
 
 export default function App() {
   return (
-   <Provider store={store}>
-     <NavigationContainer>
-      <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen name="Camera" component={CameraScreen}/>
-        <Tab.Screen name="Gallery" component={ImageList} />
-        <Tab.Screen name="FolderList" component={FolderList} /> 
-        <Tab.Screen name="BigPicture" component={BigPicture} />
-      </Tab.Navigator>
-     </NavigationContainer>
-   </Provider>
+    <Provider store={store}>
+      <NavigationContainer>
+        <Tab.Navigator screenOptions={screenOptions}>
+          <Tab.Screen name="Camera" component={CameraScreen}/>
+          <Tab.Screen name="Gallery" component={ImageList} />
+          <Tab.Screen name="FolderList" component={FolderList} /> 
+          <Tab.Screen name="BigPicture" component={BigPicture} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </Provider>
   );
 }
