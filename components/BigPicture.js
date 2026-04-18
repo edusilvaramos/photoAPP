@@ -4,16 +4,19 @@ import { File } from "expo-file-system";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useDispatch, useSelector } from "react-redux";
 import Entypo from "@expo/vector-icons/Entypo";
-import Feather from '@expo/vector-icons/Feather';
-import { assignImageToFolder, removeImageFromFolder, selectFolders, selectImages } from "../store/imageSlice";
+import Feather from "@expo/vector-icons/Feather";
+import {
+  assignImageToFolder,
+  removeImageFromFolder,
+  selectFolders,
+  selectImages,
+} from "../store/imageSlice";
 import { STORAGE_KEYS } from "../store/storageKeys";
 import AddToFolderModal from "./AddToFolderModal";
 import { bigPictureStyles as styles, colors } from "../assets/style/styles";
 
 export default function BigPicture({ route, navigation }) {
   const thumbnail = route?.params?.thumbnail;
-  const folderId = route?.params?.folderId;
-  const folderName = route?.params?.folderName;
   const dispatch = useDispatch();
   const folders = useSelector(selectFolders);
   const images = useSelector(selectImages);
@@ -31,30 +34,33 @@ export default function BigPicture({ route, navigation }) {
 
   const handleRemove = async () => {
     if (!thumbnail) return;
+    // Just removing the association with the folder 
     dispatch(removeImageFromFolder({ uri: thumbnail }));
     await saveImageFolderMap(thumbnail, null);
+
     navigation.goBack();
   };
-
+// Deleting the image file permanently
   const handleDelete = async () => {
     if (!thumbnail) return;
+
     try {
       const file = new File(thumbnail);
+
       if (file.exists) {
-        file.delete();
+        await file.delete();
       }
+
       dispatch(removeImageFromFolder({ uri: thumbnail }));
       await saveImageFolderMap(thumbnail, null);
-      if (folderId) {
-        navigation.navigate("Gallery", { folderId, folderName });
-      } else {
-        navigation.navigate("Gallery");
-      }
+
+      navigation.goBack();
     } catch (error) {
       console.error("Error deleting image:", error);
     }
   };
 
+  // Confirmation alert ! 
   const confirmDeleteImage = () => {
     Alert.alert(
       "Delete image",
@@ -71,7 +77,7 @@ export default function BigPicture({ route, navigation }) {
             handleDelete();
           },
         },
-      ]
+      ],
     );
   };
 
@@ -84,7 +90,10 @@ export default function BigPicture({ route, navigation }) {
       } else {
         delete parsed[uri];
       }
-      await AsyncStorage.setItem(STORAGE_KEYS.imageFolders, JSON.stringify(parsed));
+      await AsyncStorage.setItem(
+        STORAGE_KEYS.imageFolders,
+        JSON.stringify(parsed),
+      );
     } catch (error) {
       console.error("Error saving image-folder map:", error);
     }
@@ -92,12 +101,7 @@ export default function BigPicture({ route, navigation }) {
 
   return (
     <View style={styles.container}>
-      {thumbnail && (
-        <Image
-          source={{ uri: thumbnail }}
-          style={styles.image}
-        />
-      )}
+      {thumbnail && <Image source={{ uri: thumbnail }} style={styles.image} />}
 
       {thumbnail && !isAssigned && (
         <TouchableOpacity
@@ -109,19 +113,18 @@ export default function BigPicture({ route, navigation }) {
       )}
 
       {thumbnail && isAssigned && (
-        <TouchableOpacity
-          onPress={handleRemove}
-          style={styles.removeButton}
-        >
+        <TouchableOpacity onPress={handleRemove} style={styles.removeButton}>
           <Feather name="folder-minus" size={24} color={colors.black} />
         </TouchableOpacity>
       )}
 
       {thumbnail && (
         <TouchableOpacity
+        // ask for confirmation before deleting the image permanently
           onPress={confirmDeleteImage}
           style={styles.deleteButton}
         >
+          {/* expo icon */}
           <Entypo name="trash" size={22} color={colors.textPrimary} />
         </TouchableOpacity>
       )}
