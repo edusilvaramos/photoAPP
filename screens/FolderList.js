@@ -11,16 +11,20 @@ import { folderStyles as styles, colors } from "../assets/style/styles";
 
 
 export default function FolderList({ navigation }) {
+  // dispatch to keep folders and images in sync across screens
   const dispatch = useDispatch();
   const folders = useSelector(selectFolders);
   const images = useSelector(selectImages);
+  // controls create folder modal visibility and input value
   const [modalVisible, setModalVisible] = useState(false);
   const [folderName, setFolderName] = useState("");
 
+  // load saved folders when screen mounts
   useEffect(() => {
     loadFolders();
   }, []);
 
+  // async lets this function wait for storage read before updating redux
   const loadFolders = async () => {
     try {
       const stored = await AsyncStorage.getItem(STORAGE_KEYS.folders);
@@ -34,9 +38,12 @@ export default function FolderList({ navigation }) {
     }
   };
 
+  // persists folders and keeps redux in sync
   const saveFolders = async (newFolders) => {
     try {
+      // await makes sure folders are saved before continuing
       await AsyncStorage.setItem(STORAGE_KEYS.folders, JSON.stringify(newFolders));
+      // update redux after storage write succeeds
       dispatch(setFolders(newFolders));
     } catch (error) {
       console.error("Error saving folders:", error);
@@ -44,6 +51,7 @@ export default function FolderList({ navigation }) {
   };
 
   const createFolder = async () => {
+    // prevent empty folder names
     if (folderName.trim() === "") {
       alert("Enter a name for the list");
       return;
@@ -56,14 +64,17 @@ export default function FolderList({ navigation }) {
     };
 
     const updatedFolders = [...folders, newFolder];
+    // wait save to finish before clearing input and closing modal
     await saveFolders(updatedFolders);
     setFolderName("");
     setModalVisible(false);
   };
 
+  // deletes folder, related files, and related map entries
   const confirmDeleteFolder = async (id) => {
     console.log('deleting folder:', id);
     const updatedFolders = folders.filter(folder => folder.id !== id);
+    // wait folder save so storage and ui stay in sync
     await saveFolders(updatedFolders);
 
     try {
@@ -78,14 +89,16 @@ export default function FolderList({ navigation }) {
         .filter((image) => image.folderId === id)
         .map((image) => image.uri);
 
+      // merge both sources to avoid missing stale entries
       const urisToDelete = [...new Set([...urisFromMap, ...urisFromState])];
       console.log('images to delete:', urisToDelete.length);
 
-      // Remove file assets that belonged to the deleted folder.
+      // remove local image files that belonged to this folder
       for (const uri of urisToDelete) {
         try {
           const file = new File(uri);
           if (file.exists) {
+            // await avoids moving on before file is really deleted
             await file.delete();
             console.log('file deleted:', uri);
           }
@@ -97,10 +110,12 @@ export default function FolderList({ navigation }) {
       const cleanedMap = Object.fromEntries(
         Object.entries(parsed).filter(([, folderId]) => folderId !== id)
       );
+      // wait map write before rebuilding redux image assignments
       await AsyncStorage.setItem(STORAGE_KEYS.imageFolders, JSON.stringify(cleanedMap));
 
       const deletedSet = new Set(urisToDelete);
 
+      // remove deleted images from redux and normalize remaining assignments
       const reassignedImages = images
         .filter((image) => !deletedSet.has(image.uri))
         .filter((image) => image.folderId == null || image.folderId !== id)
